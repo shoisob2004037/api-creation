@@ -43,6 +43,7 @@ let gadgets = [
     { id: 5, name: 'Tablet', price: 499.99 }
 ];
 
+
 // GET all users
 app.get('/api/users', (req, res) => {
     res.json(users);
@@ -79,6 +80,11 @@ app.get('/api/gadgets/:id', (req, res) => {
     if (!gadget) return res.status(404).json({ message: 'Gadget not found' });
     res.json(gadget);
 });
+
+app.use("/",(req,res)=>{
+    res.send("Hello Api!");
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
