@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Fetching</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #e9ecef;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border-radius: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        .users-section {
+            background-color: #f8e1e1;
+            border-left: 5px solid #e74c3c;
+        }
+        .fruits-section {
+            background-color: #e1f8e1;
+            border-left: 5px solid #2ecc71;
+        }
+        .gadgets-section {
+            background-color: #e1ecf8;
+            border-left: 5px solid #3498db;
+        }
+        .section h2 {
+            margin: 0 0 15px 0;
+            font-size: 1.8em;
+            color: #444;
+        }
+        button {
+            display: block;
+            margin: 0 auto 20px;
+            padding: 12px 24px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        .item {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+        .item:hover {
+            background-color: rgba(255, 255, 255, 1);
+        }
+        .item h3 {
+            margin: 0;
+            color: #555;
+            font-size: 1.2em;
+        }
+        .item p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            font-weight: bold;
+        }
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .section h2 {
+                font-size: 1.5em;
+            }
+            button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API Data Fetching</h1>
+
+        <div class="section users-section">
+            <h2>Users</h2>
+            <button id="fetchuser">Fetch Users</button>
+            <div id="users-container"></div>
+        </div>
+
+        <div class="section fruits-section">
+            <h2>Fruits</h2>
+            <button id="fetchfruits">Fetch Fruits</button>
+            <div id="fruits-container"></div>
+        </div>
+
+        <div class="section gadgets-section">
+            <h2>Gadgets</h2>
+            <button id="fetchgadgets">Fetch Gadgets</button>
+            <div id="gadgets-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // Base URL for the API
+        const baseUrl = 'https://api-creation-two.vercel.app/api';
+
+        // Reusable function to fetch and display data
+        async function fetchData(endpoint, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '<p class="loading">Loading...</p>';
+
+            try {
+                const response = await fetch(`${baseUrl}/${endpoint}`);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch ${endpoint}: ${response.statusText}`);
+                }
+                const data = await response.json();
+
+                // Clear the loading message
+                container.innerHTML = '';
+
+                // Check if data is empty
+                if (data.length === 0) {
+                    container.innerHTML = `<p>No ${endpoint} available.</p>`;
+                    return;
+                }
+
+                // Display each item
+                data.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'item';
+                    if (endpoint === 'users') {
+                        itemDiv.innerHTML = `
+                            <h3>User ID: ${item.id}</h3>
+                            <p>Name: ${item.name}</p>
+                            <p>Email: ${item.email}</p>
+                        `;
+                    } else {
+                        // For fruits and gadgets
+                        itemDiv.innerHTML = `
+                            <h3>ID: ${item.id}</h3>
+                            <p>Name: ${item.name}</p>
+                            <p>Price: $${item.price.toFixed(2)}</p>
+                        `;
+                    }
+                    container.appendChild(itemDiv);
+                });
+            } catch (error) {
+                container.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+
+        // Event listeners for each button
+        document.getElementById("fetchuser").addEventListener("click", () => fetchData('users', 'users-container'));
+        document.getElementById("fetchfruits").addEventListener("click", () => fetchData('fruits', 'fruits-container'));
+        document.getElementById("fetchgadgets").addEventListener("click", () => fetchData('gadgets', 'gadgets-container'));
+    </script>
+</body>
+</html>
